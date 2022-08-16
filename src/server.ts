@@ -1,7 +1,6 @@
 import express from "express";
 import bodyParser from "body-parser";
 import { filterImageFromURL, deleteLocalFiles } from "./util/util";
-import { nextTick } from "process";
 
 (async () => {
   // Init the Express application
@@ -28,14 +27,7 @@ import { nextTick } from "process";
   //   the filtered image file [!!TIP res.sendFile(filteredpath); might be useful]
 
   /**************************************************************************** */
-  //! END @TODO1
-  // Root Endpoint
-  // Displays a simple message to the user
-  app.get("/", async (req, res) => {
-    res.send("try GET /filteredimage?image_url={{}}");
-  });
-
-  app.get("/filteredimage", async (req, res, next) => {
+  app.get("/filteredimage/", async (req, res, next) => {
     try {
       let { image_url } = req.query;
 
@@ -43,10 +35,6 @@ import { nextTick } from "process";
         res.status(400).send("image url is missing!");
       }
       const urlPath = await filterImageFromURL(image_url);
-      console.log(urlPath);
-      if (!urlPath) {
-        return res.status(400).send("image url is missing");
-      }
       res.sendFile(urlPath, (err) => {
         if (err) {
           next(err);
@@ -55,8 +43,16 @@ import { nextTick } from "process";
         }
       });
     } catch (err) {
-      res.status(500).send("error occurred while filtering image");
+      res
+        .status(422)
+        .send({ error: "An error occurred while filtering image" });
     }
+  });
+  //! END @TODO1
+  // Root Endpoint
+  // Displays a simple message to the user
+  app.get("/", async (req, res) => {
+    res.send("try GET /filteredimage?image_url={{}}");
   });
 
   // Start the Server
