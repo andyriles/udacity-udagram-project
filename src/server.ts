@@ -27,31 +27,38 @@ import { filterImageFromURL, deleteLocalFiles } from "./util/util";
   //   the filtered image file [!!TIP res.sendFile(filteredpath); might be useful]
 
   /**************************************************************************** */
-  app.get("/filteredimage/", async (req, res, next) => {
-    try {
-      let { image_url } = req.query;
+  app.get(
+    "/filteredimage/",
+    async (
+      req: express.Request,
+      res: express.Response,
+      next: express.NextFunction
+    ) => {
+      try {
+        let { image_url } = req.query;
 
-      if (!image_url) {
-        res.status(400).send("image url is missing!");
-      }
-      const urlPath = await filterImageFromURL(image_url);
-      res.sendFile(urlPath, (err) => {
-        if (err) {
-          next(err);
-        } else {
-          deleteLocalFiles([urlPath]);
+        if (!image_url) {
+          res.status(400).send("image url is missing!");
         }
-      });
-    } catch (err) {
-      res
-        .status(422)
-        .send({ error: "An error occurred while filtering image" });
+        const urlPath = await filterImageFromURL(image_url);
+        res.status(200).sendFile(urlPath, (err) => {
+          if (err) {
+            next(err);
+          } else {
+            deleteLocalFiles([urlPath]);
+          }
+        });
+      } catch (err) {
+        res
+          .status(422)
+          .send({ error: "An error occurred while filtering image" });
+      }
     }
-  });
+  );
   //! END @TODO1
   // Root Endpoint
   // Displays a simple message to the user
-  app.get("/", async (req, res) => {
+  app.get("/", async (req: express.Request, res: express.Response) => {
     res.send("try GET /filteredimage?image_url={{}}");
   });
 
